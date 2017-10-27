@@ -81,10 +81,10 @@ class RestURL(object):
 
 
 class RestClient(object):
-    def __init__(self, address=None, endpoints=None, headers=None):
+    def __init__(self, address=None, endpoints=None, headers=None, **kwargs):
         self.url = RestURL(address, endpoints)
-        self.headers = RestHeaders(
-            **headers) if isinstance(headers, dict) else RestHeaders()
+        self.headers = RestHeaders(**headers) if isinstance(headers, dict) else RestHeaders()
+        self.full_response = self._extract_full_response(kwargs.get('full_response'))
 
     def __call__(self, method, *address, **kwargs):
         if len(address) == 0:
@@ -127,7 +127,7 @@ class RestClient(object):
         if isinstance(full_response, bool):
             return full_response
 
-        return False
+        return getattr(self, 'full_response', False)
 
     def _extract_data(self, data=None, json=None):
         if data is None and json is not None:
