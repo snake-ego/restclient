@@ -36,3 +36,9 @@ class RestHeaders(object):
 
     def get(self, key, default=None):
         return self._index.get(key.lower(), default)
+
+    def __getitem__(self, key):
+        return self._index[key]
+
+    def keys(self):
+        return self._index.keys()
