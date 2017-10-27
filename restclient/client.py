@@ -91,8 +91,7 @@ class RestClient(object):
             raise ValueError("Address not set")
 
         ok_codes = self._extract_codes(kwargs.pop('ok_codes', None))
-        full_response = self._extract_full_response(
-            kwargs.pop('full_response', False))
+        full_response = self._extract_full_response(kwargs.pop('full_response', None))
 
         query = {
             'url': self.url(*address, **kwargs.pop('params', dict())),
@@ -105,8 +104,7 @@ class RestClient(object):
             name = self.name if hasattr(self, 'name') else type(self).__name__
             raise RestQueryError(name, response.status_code, response.content)
 
-        if full_response or int(
-                response.headers.get('Content-Length', '0')) <= 1:
+        if full_response or int(response.headers.get('Content-Length', '0')) <= 1:
             return response
         return response.content
 
