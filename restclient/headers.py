@@ -1,8 +1,7 @@
 class RestHeaders(object):
-    _items = dict()
-    _index = dict()
-
     def __init__(self, **headers):
+        self._items = dict()
+        self._index = dict()
         self.add(**headers)
 
     def __call__(self, **headers):
