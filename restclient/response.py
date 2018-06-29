@@ -37,7 +37,7 @@ class RestResponse(object):
 
     @property
     def content(self):
-        if self.headers.get('content-type').find('application/json') != -1:
+        if self.headers.get('content-type', '').find('application/json') != -1:
             return self._raw.json()
 
         return self._raw.text
