@@ -15,7 +15,8 @@ class RestURL(object):
     _map = dict()
     _pattern = re.compile("^https?://.+")
 
-    def __init__(self, address=None, endpoints=None):
+    def __init__(self, address=None, endpoints=None, strict=False):
+        self.strict = strict
         self.url = self.trim(address) if self.is_valid_url(address) else ''
 
         if isinstance(endpoints, (list, tuple)):
@@ -52,7 +53,9 @@ class RestURL(object):
         if self.is_valid_url(e):
             return e
 
-        return "/".join([self.url, e, ""])
+        query = [self.url, e]
+        query.append("") if not self.strict else None
+        return "/".join(query)
 
     def endpoints(self, *args, **kwargs):
         [self._map.update(self._parse_endpoint(h)) for h in args]
@@ -81,8 +84,8 @@ class RestURL(object):
 
 
 class RestClient(object):
-    def __init__(self, address=None, endpoints=None, headers=None, **kwargs):
-        self.url = RestURL(address, endpoints)
+    def __init__(self, address=None, endpoints=None, headers=None, strict=False, **kwargs):
+        self.url = RestURL(address, endpoints, strict)
         self.headers = RestHeaders(**headers) if isinstance(headers, dict) else RestHeaders()
         self.full_response = self._extract_full_response(kwargs.get('full_response'))
 
