@@ -54,7 +54,9 @@ class RestURL(object):
             return e
 
         query = [self.url, e]
-        query.append("") if not self.strict else None
+        if not self.strict:
+            query.append("")
+
         return "/".join(query)
 
     def endpoints(self, *args, **kwargs):
@@ -101,6 +103,9 @@ class RestClient(object):
             'headers': self.headers(**self._extract_headers(kwargs.pop('headers', None))),
             'data': self._extract_data(kwargs.pop('data', None), kwargs.pop('json', None))
         }
+        if 'timeout' in kwargs:
+            query.update(timeout=kwargs['timeout'])
+
         response = self.send(method.upper(), **query)
 
         if not response.is_ok(ok_codes):
