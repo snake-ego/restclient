@@ -1,3 +1,4 @@
+import typing as t
 import requests
 import re
 
@@ -12,7 +13,7 @@ __all__ = ['RestClient']
 
 
 class RestURL(object):
-    _map = dict()
+    _map: t.Dict[str, str] = dict()
     _pattern = re.compile("^https?://.+")
 
     def __init__(self, address=None, endpoints=None, strict=False):
@@ -49,7 +50,7 @@ class RestURL(object):
         if not self.is_endpoint(endpoint):
             raise ValueError("Endpoint '{}' doesn't exists".format(endpoint))
 
-        e = self._map.get(endpoint).format(*fmt)
+        e = self._map.get(endpoint, '').format(*fmt)
         if self.is_valid_url(e):
             return e
 
