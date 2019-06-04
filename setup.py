@@ -1,11 +1,27 @@
-#!/usr/bin/env python
 import re
 from setuptools import setup, find_packages
+from os import path as op
 
 
-def get_version(fname):
+__version__ = '1.3'
+
+PACKAGES = find_packages(exclude=['tests'])
+NAME = PACKAGES[0]
+SCRIPTS = None
+DATA_FILES = None
+REQUIREMENTS = ['requests']
+INCLUDE_PACKAGE_DATA = False
+
+
+patterns = {
+    'version': re.compile(r'__version__ = [\'"]([^\'"]*)[\'"]'),
+    'doc': re.compile(r'__doc__ = [\'"]([^\'"]*)[\'"]')
+}
+
+
+def extract(pattern, fname):
     result = ''
-    reg = re.compile(r'__version__ = [\'"]([^\'"]*)[\'"]')
+    reg = re.compile(patterns[pattern])
     with open(fname, 'r') as fp:
         for line in fp:
             m = reg.match(line)
@@ -13,16 +29,25 @@ def get_version(fname):
                 result = m.group(1)
                 break
     if not result:
-        raise RuntimeError('Cannot find version information')
+        raise RuntimeError("Can't find matched information for pattern {}".format(pattern))
     return result
 
 
-__version__ = get_version("restclient/__init__.py")
+def get_readme(fname):
+    result = ''
+    if op.exists(fname):
+        with open(fname, encoding='utf-8') as f:
+            result = f.read()
+    return result
+
 
 setup(
-    name='REST-API-Client',
-    version=__version__,
-    description="Клиент для работы с REST API",
-    packages=find_packages(exclude=['tests']),
-    install_requires=open('requirements.txt').read()
+    version=extract('version', '{}/__init__.py'.format(NAME)),
+    description=extract('doc', '{}/__init__.py'.format(NAME)),
+    long_description=get_readme('README.rst'),
+    install_requires=REQUIREMENTS,
+    packages=PACKAGES,
+    scripts=SCRIPTS,
+    data_files=DATA_FILES,
+    include_package_data=INCLUDE_PACKAGE_DATA
 )
