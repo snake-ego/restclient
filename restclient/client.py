@@ -13,12 +13,16 @@ __all__ = ['RestClient']
 
 
 class RestURL(object):
-    _map: t.Dict[str, str] = dict()
+    strict: bool
+    url: str
+
+    _endpoints: t.Dict[str, str]
     _pattern = re.compile("^https?://.+")
 
     def __init__(self, address=None, endpoints=None, strict=False):
         self.strict = strict
         self.url = self.trim(address) if self.is_valid_url(address) else ''
+        self._endpoints = dict()
 
         if isinstance(endpoints, (list, tuple)):
             self.endpoints(*endpoints)
@@ -50,7 +54,7 @@ class RestURL(object):
         if not self.is_endpoint(endpoint):
             raise ValueError("Endpoint '{}' doesn't exists".format(endpoint))
 
-        e = self._map.get(endpoint, '').format(*fmt)
+        e = self._endpoints.get(endpoint, '').format(*fmt)
         if self.is_valid_url(e):
             return e
 
@@ -61,8 +65,8 @@ class RestURL(object):
         return "/".join(query)
 
     def endpoints(self, *args, **kwargs):
-        [self._map.update(self._parse_endpoint(h)) for h in args]
-        self._map.update(kwargs)
+        [self._endpoints.update(self._parse_endpoint(h)) for h in args]
+        self._endpoints.update(kwargs)
         return self
 
     def _parse_endpoint(self, endpoint) -> dict:
@@ -78,7 +82,7 @@ class RestURL(object):
         return dict()
 
     def is_endpoint(self, item: str) -> bool:
-        return self.trim(item) in self._map
+        return self.trim(item) in self._endpoints
 
     def trim(self, url: str) -> str:
         url = url[1:] if url[0] == "/" else url
