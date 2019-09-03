@@ -96,17 +96,18 @@ class RestClient(object):
         self.headers = RestHeaders(**headers) if isinstance(headers, dict) else RestHeaders()
         self.full_response = self._extract_full_response(kwargs.get('full_response'))
 
-    def __call__(self, method, *address, **kwargs):
+    def __call__(self, method, *address, ok_codes=None, full_response=None, **kwargs):
         if len(address) == 0:
             raise ValueError("Address not set")
 
-        ok_codes = self._extract_codes(kwargs.pop('ok_codes', None))
-        full_response = self._extract_full_response(kwargs.pop('full_response', None))
+        ok_codes = self._extract_codes(ok_codes)
+        full_response = self._extract_full_response(full_response)
 
         query = {
             'url': self.url(*address, **kwargs.pop('params', dict())),
             'headers': self.headers(**self._extract_headers(kwargs.pop('headers', None))),
-            'data': self._extract_data(kwargs.pop('data', None), kwargs.pop('json', None))
+            'data': self._extract_data(kwargs.pop('data', None), kwargs.pop('json', None)),
+            **kwargs
         }
         if 'timeout' in kwargs:
             query.update(timeout=kwargs['timeout'])
