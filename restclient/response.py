@@ -1,10 +1,22 @@
 import requests
 from json import dumps
+from abc import ABC, abstractmethod, abstractproperty
 
 from .headers import RestHeaders
 
 
-class RestResponse(object):
+class BaseResponse(ABC):
+
+    @abstractmethod
+    def json(self):
+        raise NotImplementedError()
+
+    @abstractproperty
+    def text(self):
+        raise NotImplementedError()
+
+
+class RestResponse(BaseResponse):
     _raw = None
 
     def __init__(self, response):
@@ -57,8 +69,12 @@ class RestResponse(object):
     def json(self):
         return self._raw.json()
 
+    @property
+    def text(self):
+        return self.raw._text
 
-class ErrorResponse(object):
+
+class ErrorResponse(BaseResponse):
     def __init__(self, url, *args, **kwargs):
         self.url = url
         self.headers = RestHeaders(**kwargs.get('headers', {}))

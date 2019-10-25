@@ -5,4 +5,4 @@ class RestQueryError(Exception):
         self.message = message
 
     def __str__(self):
-        return '{} Error: {} - {}'.format(self.name, self.code, self.message)
+        return f'{self.name} Error: {self.message} ({self.code})'
