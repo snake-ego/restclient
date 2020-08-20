@@ -1,4 +1,4 @@
-import requests
+from httpx import Response
 from json import dumps
 from abc import ABC, abstractmethod, abstractproperty
 
@@ -22,12 +22,10 @@ class RestResponse(BaseResponse):
     def __init__(self, response):
         self._raw = response
 
-        if not isinstance(response, (requests.Response, ErrorResponse)):
-            raise ValueError(
-                'Responce argument must be instance of {}'.format(
-                    requests.Response))
+        if not isinstance(response, (Response, ErrorResponse)):
+            raise ValueError(f'Responce argument must be instance of {Response}')
 
-        self._headers = RestHeaders(**response.headers)
+        self._headers = RestHeaders(**dict(response.headers))
 
     def is_ok(self, codes):
         if self.status_code in codes:

@@ -1,4 +1,16 @@
+from httpx.exceptions import TimeoutException, NetworkError
+
+__all__ = [
+    'TimeoutException',
+    'NetworkError'
+]
+
+
 class RestQueryError(Exception):
+    name: str
+    code: int
+    message: str
+
     def __init__(self, name, code, message):
         self.name = name
         self.code = code

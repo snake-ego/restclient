@@ -1,7 +1,12 @@
-from .client import RestClient
+from .client import RestClient, AsyncRestClient
 from .response import RestResponse, ErrorResponse
 from .exceptions import RestQueryError
 
-__all__ = ['RestClient', 'RestResponse', 'ErrorResponse', 'RestQueryError']
-__version__ = "1.2.1"
-__doc__ = "Client for various HTTP REST API"
+__version__ = '2.0.0'
+__all__ = [
+    'RestClient',
+    'AsyncRestClient',
+    'RestResponse',
+    'ErrorResponse',
+    'RestQueryError',
+]

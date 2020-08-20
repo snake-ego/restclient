@@ -1,43 +1,43 @@
+from __future__ import annotations
+import typing as t
+
+from .structures import Header
+
+
 class RestHeaders(object):
-    def __init__(self, **headers):
-        self._items = dict()
-        self._index = dict()
-        self.add(**headers)
+    __members__: t.List[Header]
 
-    def __call__(self, **headers):
-        out = self._items.copy()
-        out.update(**headers)
-        return out
+    def __init__(self, *args, **kwargs):
+        self.__members__ = self.create(*args, **kwargs)
 
-    def add(self, *args, **kwargs):
-        [self._items.update(self._parse(h)) for h in args]
-        self._items.update(kwargs)
-        return self._reindex()
+    def __call__(self, *args, **kwargs):
+        result = {}
 
-    def _parse(self, header) -> dict:
-        if isinstance(header, dict):
-            return header
+        for header in self.__members__:
+            result.update(header.to_dict())
+        for header in self.create(*args, **kwargs):
+            result.update(header.to_dict())
 
-        if isinstance(header, (tuple, list)) and len(header) == 2:
-            return dict(*tuple(header))
+        return result
 
-        return dict()
+    def create(self, *args, **kwargs) -> t.List[Header]:
+        return [
+            *Header.parse(args),
+            *Header.parse(kwargs)
+        ]
 
-    def _reindex(self):
-        self._index = {k.lower(): v for k, v in self._items.items()}
-        return self
+    def has(self, name) -> bool:
+        return any(filter(lambda h: h.name == name.lower(), self.__members__))
 
-    def has(self, name):
-        return name.lower() in self._index.keys()
+    def keys(self) -> t.List[str]:
+        return [h.name for h in self.__members__]
 
-    def all(self):
-        return self._items.copy()
+    def get(self, name: str, default: str = None) -> t.Optional[str]:
+        if (result := next(filter(lambda h: h.name == name.lower(), self.__members__), None)) is None:
+            return default
+        return result.value
 
-    def get(self, key, default=None):
-        return self._index.get(key.lower(), default)
-
-    def __getitem__(self, key):
-        return self._index[key]
-
-    def keys(self):
-        return self._index.keys()
+    def __getitem__(self, name: str) -> str:
+        if (result := self.get(name, None)) is None:
+            raise KeyError(name)
+        return result.value

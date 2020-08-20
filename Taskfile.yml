@@ -1,0 +1,100 @@
+# https://taskfile.dev
+
+version: '2'
+
+silent: true
+
+vars:
+  VERSION: '1.0'
+  FLAKE8_ENABLE: "{{ .FLAKE8_ENABLE | default true }}"
+  MYPY_ENABLE: "{{ .MYPY_ENABLE | default true }}"
+  PYLINT_ENABLE: "{{ .PYLINT_ENABLE | default true }}"
+  VULTURE_ENABLE: "{{ .VULTURE_ENABLE | default true }}"
+
+tasks:
+  default:
+    deps:
+      - task: version
+
+  version:
+    desc: Prints application info
+    cmds:
+      - 'echo "Script version: {{ .VERSION }}"'
+      - echo "---"
+      - 'echo "App: `/usr/bin/env python setup.py --name`"'
+      - 'echo "Version: `/usr/bin/env python setup.py --version`"'
+      - 'echo "Description: `/usr/bin/env python setup.py --description`"'
+      - echo "---"
+  
+  lint:
+    desc: Linters for application cleanup
+    cmds:
+      - task: lint-flake8
+        vars:
+          ENABLE: "{{ .FLAKE8_ENABLE }}"
+      - task: lint-mypy
+        vars:
+          ENABLE: "{{ .MYPY_ENABLE }}"
+      - task: lint-pylint
+        vars:
+          ENABLE: "{{ .PYLINT_ENABLE }}"
+      - task: lint-vulture
+        vars:
+          ENABLE: "{{ .VULTURE_ENABLE }}"
+  lint-flake8:
+    desc: Linters for application cleanup
+    cmds:
+      - echo "-- lint-flake8 (enabled={{ .ENABLE }}) --"
+      - '{{ if eq .ENABLE "true" }} flake8 {{ end }}'
+    vars:
+      ENABLE: "{{ .ENABLE | default true }}"
+  lint-mypy:
+    desc: Linters for application cleanup
+    cmds:
+      - echo "-- lint-mypy (enabled={{ .ENABLE }}) --"
+      - '{{ if eq .ENABLE "true" }} mypy . {{ end }}'
+    vars:
+      ENABLE: "{{ .ENABLE | default true }}"
+  lint-pylint:
+    desc: Linters for application cleanup
+    cmds:
+      - echo "-- lint-pylint (enabled={{ .ENABLE }}) --"
+      - '{{ if eq .ENABLE "true" }} pylint */ {{ end }}'
+    vars:
+      ENABLE: "{{ .ENABLE | default true }}"
+  lint-vulture:
+    desc: Linters for application cleanup
+    cmds:
+      - echo "-- lint-vulture (enabled={{ .ENABLE }}) --"
+      - '{{ if eq .ENABLE "true" }} vulture . .vulture-whitelist.cfg {{ end }}'
+    vars:
+      ENABLE: "{{ .ENABLE | default true }}"
+
+  coverage: 
+    desc: Calculate code coverage
+    cmds:
+      - rm -rf htmlcov
+      - py.test tests --cov {{ .ARGS }}
+    vars:
+      ARGS: -x
+  test: 
+    desc: Run unit tests
+    cmds: 
+      - py.test tests {{ .ARGS }}
+    vars:
+      ARGS: -vx
+
+  update:
+    cmds:
+      - task: build
+      - task: push
+      - task: clean
+  build:
+    cmds:
+      - python setup.py sdist
+  push:
+    cmds:
+      - twine upload --skip-existing dist/*
+  clean:
+    cmds:
+      - rm -rf dist *.egg-info
