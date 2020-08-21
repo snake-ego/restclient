@@ -1,11 +1,13 @@
 import httpx
 from json import dumps
 
-from .exceptions import RestQueryError, TimeoutException, NetworkError
 from .structures import RestErrors
 from .response import RestResponse, ErrorResponse
 from .headers import RestHeaders
 from .urls import RestURL
+from .exceptions import RestQueryError, TimeoutException, NetworkError
+from .constants import DEFAULT_QUERY_TIMEOUT
+
 
 __all__ = ['RestClient']
 
@@ -95,10 +97,9 @@ class AsyncRestClient(BaseRestClient):
             'url': self.url(*address, **kwargs.pop('params', {})),
             'headers': self.headers(**self._extract_headers(kwargs.pop('headers', None))),
             'data': self._extract_data(kwargs.pop('data', None), kwargs.pop('json', None)),
+            'timeout': kwargs['timeout'] if 'timeout' in kwargs else DEFAULT_QUERY_TIMEOUT,
             **kwargs
         }
-        if 'timeout' in kwargs:
-            query.update(timeout=kwargs['timeout'])
 
         response = await self.send(method.upper(), **query)
 

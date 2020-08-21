@@ -6,6 +6,10 @@ REST API Client
 
 # Changelog
 
+## v2.0.2
+
+* Extend default timeouts to 30s
+
 ## v2.0.1
 
 * Removed `requests` imports
