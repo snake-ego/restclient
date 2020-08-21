@@ -1,5 +1,4 @@
 import httpx
-import requests
 from json import dumps
 
 from .exceptions import RestQueryError, TimeoutException, NetworkError
@@ -76,9 +75,9 @@ class RestClient(BaseRestClient):
     def send(self, method, url, *args, **kwargs):
         try:
             return RestResponse(httpx.request(method, url, *args, **kwargs))
-        except requests.ConnectionError:
+        except NetworkError:
             return RestResponse(ErrorResponse(url, **RestErrors.refused))
-        except requests.Timeout:
+        except TimeoutException:
             return RestResponse(ErrorResponse(url, **RestErrors.timeout))
 
 

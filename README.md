@@ -6,6 +6,10 @@ REST API Client
 
 # Changelog
 
+## v2.0.1
+
+* Removed `requests` imports
+
 ## v2.0.0
 
 `@TODO добавить описание версии`
