@@ -20,14 +20,14 @@ class RestURL:
         self.strict = strict
         self.endpoints = Endpoint.parse(endpoints)
         if self.is_valid_url(address):
-            self.address = trim(address)
+            self.address = trim(t.cast(str, address))
 
     def __call__(self, address: str, *uri_params: t.Union[str, int], **kwargs: t.Union[str, int]) -> str:
         if not self.is_valid_url(address):
             address = self.url_for(address, *uri_params)
         return self.set_params(address, **kwargs)
 
-    def is_valid_url(self, url: str) -> bool:
+    def is_valid_url(self, url: t.Optional[str]) -> bool:
         if not isinstance(url, str):
             return False
         return bool(HTTP_PATTERN.match(url))
@@ -49,7 +49,7 @@ class RestURL:
         return f"{url}?{'&'.join(['{}={}'.format(*i) for i in params.items()])}"
 
     def has_endpoint(self, name: str) -> bool:
-        return any(filter(lambda e: e.name == name, self.endpoints))
+        return any(filter(lambda e: t.cast(Endpoint, e).name == name, self.endpoints))
 
     def get_endpoint(self, name: str) -> Endpoint:
         if (result := next(filter(lambda e: e.name == name, self.endpoints), None)) is None:

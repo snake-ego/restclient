@@ -1,15 +1,14 @@
+from __future__ import annotations
+import typing as t
+
 import httpx
 from json import dumps
 
-from .structures import RestErrors
+from .structures import RestErrors, Options
 from .response import RestResponse, ErrorResponse
 from .headers import RestHeaders
 from .urls import RestURL
 from .exceptions import RestQueryError, TimeoutException, NetworkError
-from .constants import DEFAULT_QUERY_TIMEOUT
-
-
-__all__ = ['RestClient']
 
 
 class BaseRestClient:
@@ -18,65 +17,59 @@ class BaseRestClient:
     def __init__(self, address=None, endpoints=None, headers=None, strict=False, **kwargs):
         self.url = RestURL(address, endpoints=endpoints, strict=strict)
         self.headers = RestHeaders(**headers) if isinstance(headers, dict) else RestHeaders()
-        self.full_response = self._extract_full_response(kwargs.get('full_response'))
-
-    def _extract_headers(self, headers=None):
-        if isinstance(headers, dict):
-            return headers
-
-        return {}
-
-    def _extract_codes(self, code=None) -> list:
-        if isinstance(code, int):
-            return [code]
-        if isinstance(code, (list, tuple)):
-            return list(code)
-        return [200]
-
-    def _extract_full_response(self, full_response=None):
-        if isinstance(full_response, bool):
-            return full_response
-
-        return getattr(self, 'full_response', False)
+        self.options = Options.create(**kwargs)
 
     def _extract_data(self, data=None, json=None):
         if data is None and json is not None:
             data = dumps(json)
         return data
 
+    def output(self, response: RestResponse, options: Options):
+        if not response.is_ok(options.ok_codes):
+            raise RestQueryError(
+                getattr(self, 'name', type(self).__name__),
+                response.status_code,
+                response.content
+            )
+
+        if options.full_response or int(response.headers.get('Content-Length', '0')) <= 1:
+            return response
+
+        return response.content
+
 
 class RestClient(BaseRestClient):
     name: str
 
-    def __call__(self, method, *address, ok_codes=None, full_response=None, **kwargs):
+    def __call__(self,
+                 method,
+                 *address,
+                 params: t.Dict[str, t.Any] = None,
+                 json: t.Union[dict, list] = None,
+                 data: t.Any = None,
+                 headers: t.Dict[str, str] = None,
+                 **opts):
         if len(address) == 0:
             raise ValueError("Address not set")
 
-        ok_codes = self._extract_codes(ok_codes)
-        full_response = self._extract_full_response(full_response)
+        params = params if isinstance(params, dict) else {}
+        headers = headers if isinstance(headers, dict) else {}
+        options = self.options.merge(**opts)
 
-        query = {
-            'url': self.url(*address, **kwargs.pop('params', {})),
-            'headers': self.headers(**self._extract_headers(kwargs.pop('headers', None))),
-            'data': self._extract_data(kwargs.pop('data', None), kwargs.pop('json', None)),
-            **kwargs
-        }
-        if 'timeout' in kwargs:
-            query.update(timeout=kwargs['timeout'])
+        return self.output(
+            self.send(
+                method=method.upper(),
+                url=self.url(*address, **params),
+                headers=self.headers(**headers),
+                data=self._extract_data(data, json),
+                options=options
+            ),
+            options
+        )
 
-        response = self.send(method.upper(), **query)
-
-        if not response.is_ok(ok_codes):
-            name = self.name if hasattr(self, 'name') else type(self).__name__
-            raise RestQueryError(name, response.status_code, response.content)
-
-        if full_response or int(response.headers.get('Content-Length', '0')) <= 1:
-            return response
-        return response.content
-
-    def send(self, method, url, *args, **kwargs):
+    def send(self, method: str, url: str, headers: dict, data: t.Any, options: Options):
         try:
-            return RestResponse(httpx.request(method, url, *args, **kwargs))
+            return RestResponse(httpx.request(method, url, headers=headers, data=data, **options.bypass))
         except NetworkError:
             return RestResponse(ErrorResponse(url, **RestErrors.refused))
         except TimeoutException:
@@ -86,35 +79,36 @@ class RestClient(BaseRestClient):
 class AsyncRestClient(BaseRestClient):
     name: str
 
-    async def __call__(self, method, *address, ok_codes=None, full_response=None, **kwargs):
+    async def __call__(self,
+                       method,
+                       *address,
+                       params: t.Dict[str, t.Any] = None,
+                       json: t.Union[dict, list] = None,
+                       data: t.Any = None,
+                       headers: t.Dict[str, str] = None,
+                       **opts):
         if len(address) == 0:
             raise ValueError("Address not set")
 
-        ok_codes = self._extract_codes(ok_codes)
-        full_response = self._extract_full_response(full_response)
+        params = params if isinstance(params, dict) else {}
+        headers = headers if isinstance(headers, dict) else {}
+        options = self.options.merge(**opts)
 
-        query = {
-            'url': self.url(*address, **kwargs.pop('params', {})),
-            'headers': self.headers(**self._extract_headers(kwargs.pop('headers', None))),
-            'data': self._extract_data(kwargs.pop('data', None), kwargs.pop('json', None)),
-            'timeout': kwargs['timeout'] if 'timeout' in kwargs else DEFAULT_QUERY_TIMEOUT,
-            **kwargs
-        }
+        return self.output(
+            await self.send(
+                method=method.upper(),
+                url=self.url(*address, **params),
+                headers=self.headers(**headers),
+                data=self._extract_data(data, json),
+                options=options
+            ),
+            options
+        )
 
-        response = await self.send(method.upper(), **query)
-
-        if not response.is_ok(ok_codes):
-            name = self.name if hasattr(self, 'name') else type(self).__name__
-            raise RestQueryError(name, response.status_code, response.content)
-
-        if full_response or int(response.headers.get('Content-Length', '0')) <= 1:
-            return response
-        return response.content
-
-    async def send(self, method, url, *args, **kwargs):
+    async def send(self, method: str, url: str, headers: dict, data: t.Any, options: Options):
         try:
             async with httpx.AsyncClient() as client:
-                return RestResponse(await client.request(method, url, *args, **kwargs))
+                return RestResponse(await client.request(method, url, headers=headers, data=data, **options.bypass))
         except NetworkError:
             return RestResponse(ErrorResponse(url, **RestErrors.refused))
         except TimeoutException:
