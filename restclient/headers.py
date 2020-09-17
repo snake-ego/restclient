@@ -4,7 +4,7 @@ import typing as t
 from .structures import Header
 
 
-class RestHeaders(object):
+class RestHeaders:
     __headers__: t.List[Header]
 
     def __init__(self, *args, **kwargs):
@@ -20,24 +20,38 @@ class RestHeaders(object):
 
         return result
 
-    def create(self, *args, **kwargs) -> t.List[Header]:
+    @staticmethod
+    def create(*args, **kwargs) -> t.List[Header]:
         result = Header.parse(kwargs)
         for header in args:
             result.extend(Header.parse(header))
         return result
 
     def has(self, name) -> bool:
-        return any(filter(lambda h: t.cast(Header, h).name == name.lower(), self.__headers__))
+        return any(self._find(name))
 
     def keys(self) -> t.List[str]:
         return [h.name for h in self.__headers__]
 
     def get(self, name: str, default: str = None) -> t.Optional[str]:
-        if (result := next(filter(lambda h: t.cast(Header, h).name == name.lower(), self.__headers__), None)) is None:
+        if (result := next(self._find(name), None)) is None:
             return default
         return result.value
+
+    def add(self, *args, **kwargs) -> None:
+        for header in self.create(*args, **kwargs):
+            if (matched := next(self._find(header.name), None)) is None:
+                return self.__headers__.append(header)
+            matched.value = header.value
+        return None
+
+    def _find(self, name: str) -> t.Iterator[Header]:
+        return filter(lambda h: t.cast(Header, h).name == name.lower(), self.__headers__)
 
     def __getitem__(self, name: str) -> str:
         if (result := self.get(name, None)) is None:
             raise KeyError(name)
         return result
+
+    def __setitem__(self, name: str, value: str) -> None:
+        return self.add({name: value})

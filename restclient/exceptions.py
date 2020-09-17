@@ -12,6 +12,8 @@ class RestQueryError(Exception):
     message: str
 
     def __init__(self, name, code, message):
+        super().__init__()
+
         self.name = name
         self.code = code
         self.message = message

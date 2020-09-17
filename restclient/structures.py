@@ -25,9 +25,9 @@ class Endpoint:
     def parse(cls, endpoint: t.Union[t.Dict[str, str], t.List[str], t.Tuple[str, str], str, None]) -> t.List[Endpoint]:
         if isinstance(endpoint, dict):
             return [cls.create(k, v) for k, v in endpoint.items()]
-        elif isinstance(endpoint, (tuple, list)) and len(endpoint) == 2:
+        if isinstance(endpoint, (tuple, list)) and len(endpoint) == 2:
             return [cls.create(*endpoint)]
-        elif isinstance(endpoint, str):
+        if isinstance(endpoint, str):
             return [cls.create(endpoint, endpoint)]
         return []
 

@@ -1,8 +1,8 @@
 from __future__ import annotations
 import typing as t
 
-import httpx
 from json import dumps
+import httpx
 
 from .structures import RestErrors, Options
 from .response import RestResponse, ErrorResponse
@@ -19,11 +19,6 @@ class BaseRestClient:
         self.headers = RestHeaders(**headers) if isinstance(headers, dict) else RestHeaders()
         self.options = Options.create(**kwargs)
 
-    def _extract_data(self, data=None, json=None):
-        if data is None and json is not None:
-            data = dumps(json)
-        return data
-
     def output(self, response: RestResponse, options: Options):
         if not response.is_ok(options.ok_codes):
             raise RestQueryError(
@@ -36,6 +31,12 @@ class BaseRestClient:
             return response
 
         return response.content
+
+    @staticmethod
+    def _extract_data(data=None, json=None):
+        if data is None and json is not None:
+            data = dumps(json)
+        return data
 
 
 class RestClient(BaseRestClient):
@@ -67,7 +68,8 @@ class RestClient(BaseRestClient):
             options
         )
 
-    def send(self, method: str, url: str, headers: dict, data: t.Any, options: Options):
+    @staticmethod
+    def send(method: str, url: str, headers: dict, data: t.Any, options: Options) -> RestResponse:
         try:
             return RestResponse(httpx.request(method, url, headers=headers, data=data, **options.bypass))
         except NetworkError:
@@ -105,11 +107,14 @@ class AsyncRestClient(BaseRestClient):
             options
         )
 
-    async def send(self, method: str, url: str, headers: dict, data: t.Any, options: Options):
+    @staticmethod
+    async def send(method: str, url: str, headers: dict, data: t.Any, options: Options) -> RestResponse:
+        client = httpx.AsyncClient()
         try:
-            async with httpx.AsyncClient() as client:
-                return RestResponse(await client.request(method, url, headers=headers, data=data, **options.bypass))
+            return RestResponse(await client.request(method, url, headers=headers, data=data, **options.bypass))
         except NetworkError:
             return RestResponse(ErrorResponse(url, **RestErrors.refused))
         except TimeoutException:
             return RestResponse(ErrorResponse(url, **RestErrors.timeout))
+        finally:
+            client.aclose()

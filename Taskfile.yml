@@ -14,7 +14,7 @@ vars:
 tasks:
   default:
     deps:
-      - task: version
+      - version
 
   version:
     desc: Prints application info
@@ -66,7 +66,7 @@ tasks:
     desc: Linters for application cleanup
     cmds:
       - echo "-- lint-vulture (enabled={{ .ENABLE }}) --"
-      - '{{ if eq .ENABLE "true" }} vulture . .vulture-whitelist.cfg {{ end }}'
+      - '{{ if eq .ENABLE "true" }} vulture --exclude=".vscode" . .vulture-whitelist.cfg {{ end }}'
     vars:
       ENABLE: "{{ .ENABLE | default true }}"
 

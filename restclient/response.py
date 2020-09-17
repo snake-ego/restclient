@@ -1,6 +1,6 @@
-from httpx import Response
 from json import dumps
 from abc import ABC, abstractmethod, abstractproperty
+from httpx import Response
 
 from .headers import RestHeaders
 
@@ -38,8 +38,8 @@ class RestResponse(BaseResponse):
         return self._raw
 
     @raw.setter
-    def raw(self, value):
-        return
+    def raw(self, _):
+        raise TypeError(f"Can't change response in {type(self)}")
 
     @property
     def status_code(self):
@@ -61,8 +61,8 @@ class RestResponse(BaseResponse):
         return self._headers
 
     @headers.setter
-    def headers(self, value):
-        return
+    def headers(self, _):
+        raise TypeError(f"Can't change headers in {type(self)}")
 
     def json(self):
         return self._raw.json()
@@ -73,7 +73,7 @@ class RestResponse(BaseResponse):
 
 
 class ErrorResponse(BaseResponse):
-    def __init__(self, url, *args, **kwargs):
+    def __init__(self, url, *_, **kwargs):
         self.url = url
         self.headers = RestHeaders(**kwargs.get('headers', {}))
         self.status_code = kwargs.get('status_code', None)
