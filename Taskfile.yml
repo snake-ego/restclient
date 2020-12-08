@@ -66,7 +66,7 @@ tasks:
     desc: Linters for application cleanup
     cmds:
       - echo "-- lint-vulture (enabled={{ .ENABLE }}) --"
-      - '{{ if eq .ENABLE "true" }} vulture --exclude=".vscode" . .vulture-whitelist.cfg {{ end }}'
+      - '{{ if eq .ENABLE "true" }} vulture . .vulture-whitelist.cfg {{ end }}'
     vars:
       ENABLE: "{{ .ENABLE | default true }}"
 
@@ -91,10 +91,10 @@ tasks:
       - task: clean
   build:
     cmds:
-      - python setup.py sdist
+      - python setup.py sdist bdist_wheel
   push:
     cmds:
       - twine upload --skip-existing dist/*
   clean:
     cmds:
-      - rm -rf dist *.egg-info
+      - rm -rf dist *.egg-info build

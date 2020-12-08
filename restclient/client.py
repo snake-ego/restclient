@@ -2,6 +2,7 @@ from __future__ import annotations
 import typing as t
 
 from json import dumps
+from types import MappingProxyType
 import httpx
 
 from .structures import RestErrors, Options
@@ -16,7 +17,7 @@ class BaseRestClient:
 
     def __init__(self, address=None, endpoints=None, headers=None, strict=False, **kwargs):
         self.url = RestURL(address, endpoints=endpoints, strict=strict)
-        self.headers = RestHeaders(**headers) if isinstance(headers, dict) else RestHeaders()
+        self.headers = RestHeaders(**headers) if isinstance(headers, (dict, MappingProxyType)) else RestHeaders()
         self.options = Options.create(**kwargs)
 
     def output(self, response: RestResponse, options: Options):
@@ -117,4 +118,4 @@ class AsyncRestClient(BaseRestClient):
         except TimeoutException:
             return RestResponse(ErrorResponse(url, **RestErrors.timeout))
         finally:
-            client.aclose()
+            await client.aclose()

@@ -1,0 +1,20 @@
+[tool.vulture]
+exclude = [".vscode/"]
+
+[tool.pylint.messages_control]
+disable = [
+    "missing-module-docstring",
+    "missing-class-docstring",
+    "missing-function-docstring",
+    "too-few-public-methods",
+    "no-member",
+    "logging-fstring-interpolation",
+    "duplicate-code",
+    "superfluous-parens",
+    "protected-access",
+    "useless-super-delegation",
+    "raising-bad-type"
+]
+
+[tool.pylint.format]
+max-line-length = 135

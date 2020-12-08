@@ -3,6 +3,7 @@ import typing as t
 
 from dataclasses import dataclass, field as f
 from copy import deepcopy
+from types import MappingProxyType
 
 from .utils import trim
 
@@ -23,7 +24,7 @@ class Endpoint:
 
     @classmethod
     def parse(cls, endpoint: t.Union[t.Dict[str, str], t.List[str], t.Tuple[str, str], str, None]) -> t.List[Endpoint]:
-        if isinstance(endpoint, dict):
+        if isinstance(endpoint, (dict, MappingProxyType)):
             return [cls.create(k, v) for k, v in endpoint.items()]
         if isinstance(endpoint, (tuple, list)) and len(endpoint) == 2:
             return [cls.create(*endpoint)]
@@ -48,7 +49,7 @@ class Header:
 
     @ classmethod
     def parse(cls, header: t.Union[t.Dict[str, str], t.List[str], t.Tuple[str, str]]) -> t.List[Header]:
-        if isinstance(header, dict):
+        if isinstance(header, (dict, MappingProxyType)):
             return [Header.create(k, v) for k, v in header.items()]
         if isinstance(header, (tuple, list)) and len(header) == 2:
             return [Header.create(*header)]
