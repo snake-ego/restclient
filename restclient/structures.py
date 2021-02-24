@@ -9,8 +9,8 @@ from .utils import trim
 
 
 class RestErrors:
-    refused = dict(status_code=1, text='Connection Refused')
-    timeout = dict(status_code=1, text='Connection Timeout')
+    refused = {'status_code': 1, 'text': "Connection Refused"}
+    timeout = {'status_code': 1, 'text': "Connection Timeout"}
 
 
 @dataclass

@@ -1,11 +1,11 @@
 # https://taskfile.dev
 
-version: '2'
+version: "2"
 
 silent: true
 
 vars:
-  VERSION: '1.0'
+  VERSION: "1.0"
   FLAKE8_ENABLE: "{{ .FLAKE8_ENABLE | default true }}"
   MYPY_ENABLE: "{{ .MYPY_ENABLE | default true }}"
   PYLINT_ENABLE: "{{ .PYLINT_ENABLE | default true }}"
@@ -25,7 +25,7 @@ tasks:
       - 'echo "Version: `/usr/bin/env python setup.py --version`"'
       - 'echo "Description: `/usr/bin/env python setup.py --description`"'
       - echo "---"
-  
+
   lint:
     desc: Linters for application cleanup
     cmds:
@@ -70,22 +70,23 @@ tasks:
     vars:
       ENABLE: "{{ .ENABLE | default true }}"
 
-  coverage: 
+  coverage:
     desc: Calculate code coverage
     cmds:
       - rm -rf htmlcov
       - py.test tests --cov {{ .ARGS }}
     vars:
       ARGS: -x
-  test: 
+  test:
     desc: Run unit tests
-    cmds: 
+    cmds:
       - py.test tests {{ .ARGS }}
     vars:
       ARGS: -vx
 
   update:
     cmds:
+      - task: lint
       - task: build
       - task: push
       - task: clean

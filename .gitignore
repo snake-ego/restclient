@@ -1,10 +1,10 @@
+# Version: 1.2.1
 .cache/
 .pytest_cache/
 .mypy_cache/
-.build/
-.tmp/
-*.egg-info/
+
 dist/
+*.egg-info/
 
 .vscode/
 .idea/
@@ -14,12 +14,17 @@ dist/
 
 htmlcov/
 
-.notifier
 .coverage
+.notifier
+.DS_Store
 *.pyc
 *~
 *.conf
 *.db
 *.orig
 
-/*.json
+.config/*.json
+.config/*.yml
+!.config/*.template.*
+configuration/
+configuration.json

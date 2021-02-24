@@ -18,3 +18,14 @@ class TokenAuth(Auth):
     def auth_flow(self, request: Request) -> t.Generator[Request, Response, None]:
         request.headers["Authorization"] = self.auth_header
         yield request
+
+
+class BypassAuth(Auth):
+    """ Bypass auth header """
+
+    def __init__(self, header: str):
+        self.auth_header = header
+
+    def auth_flow(self, request: Request) -> t.Generator[Request, Response, None]:
+        request.headers["Authorization"] = self.auth_header
+        yield request
