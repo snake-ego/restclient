@@ -1,8 +1,8 @@
 from __future__ import annotations
 import typing as t
 
-from httpx.auth import Auth, BasicAuth
-from httpx.models import Request, Response
+from httpx import Auth, BasicAuth
+from httpx import Request, Response
 
 __all__ = [
     'BasicAuth'

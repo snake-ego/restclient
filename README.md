@@ -4,6 +4,10 @@
 
 ## Changelog
 
+### v2.4.0
+
+* Upgaded `httpx`: `0.11.1` -> `0.15.x`
+
 ### v2.3.0
 
 * Added `BypassAuth` for proxying authorization header

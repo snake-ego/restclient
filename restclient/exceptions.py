@@ -1,4 +1,4 @@
-from httpx.exceptions import TimeoutException, NetworkError
+from httpx import TimeoutException, NetworkError
 
 __all__ = [
     'TimeoutException',
