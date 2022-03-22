@@ -1,0 +1,23 @@
+name: APIRestClient
+service: restclient
+version: 2.4.3
+description: Client for sync/async query HTTP REST API services
+link: https://gitlab.itpc.ru/libs/python/restclient
+authors:
+  - Igor Voropaev <snake@itpc.ru>
+  - Dmitry Kurochkin <kurochkin@itpc.ru>
+deps:
+  python: ^3.8
+  httpx: ^0.17.0
+files:
+  - pyproject.toml
+images:
+  compile: python:5
+linters:
+  version: 6
+  flake8:
+    cmd: pflake8
+
+publish:
+  name: libs
+  url: https://pypi.itpc.dev/itpc/libs

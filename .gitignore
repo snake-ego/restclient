@@ -1,4 +1,3 @@
-# Version: 1.2.1
 .cache/
 .pytest_cache/
 .mypy_cache/
@@ -23,9 +22,5 @@ htmlcov/
 *.db
 *.orig
 
-.config/*.json
-.config/*.yml
-!.config/*.template.*
-configuration/
-configuration.json
+/*.json
 poetry.lock

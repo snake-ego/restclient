@@ -1,0 +1,9 @@
+variables:
+  LINT_VERSION: 6
+
+stages:
+  - test
+
+include:
+  - project: "devops/gitlab/templates"
+    file: "/ci/partial/v2/lint.python.yml"

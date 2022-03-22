@@ -25,11 +25,18 @@ class RestURL:
             address = self.url_for(address, *uri_params)
         return self.set_params(address, **kwargs)
 
-    @staticmethod
-    def set_params(url: str, **params: t.Union[str, int]) -> str:
+    def set_params(self, url: str, **params: t.Union[str, int]) -> str:
         if not params:
             return url
-        return f"{url}?{'&'.join(['{}={}'.format(*i) for i in params.items()])}"
+
+        return f"{url}?{'&'.join(self.build_param(key, value) for key, value in params.items())}"
+
+    @staticmethod
+    def build_param(key, value):
+        if isinstance(value, list):
+            return '&'.join(('{}={}'.format(key, v) for v in value))  # pylint: disable=consider-using-f-string
+
+        return f'{key}={value}'
 
     def url_for(self, endpoint: str, *uri_params: t.Union[str, int]) -> str:
         target = self.get_endpoint(endpoint).uri.format(*uri_params)

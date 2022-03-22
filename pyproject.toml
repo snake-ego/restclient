@@ -1,11 +1,14 @@
 # -- Poetry --
 [tool.poetry]
 name = "APIRestClient"
-version = "2.4.2"
+version = "2.4.3"
 description = "Client for sync/async query HTTP REST API services"
 readme = "README.md"
 repository = "https://gitlab.itpc.ru/libs/python/restclient"
-authors = ["Igor Voropaev <snake@itpc.ru>"]
+authors = [
+    "Igor Voropaev <snake@itpc.ru>",
+    "Dmitry Kurochkin <kurochkin@itpc.ru>"
+]
 packages = [{ include = "restclient" }]
 
 [tool.poetry.dependencies]
@@ -25,6 +28,17 @@ url = "https://pypi.itpc.dev/mirror/pypi.org/+simple/"
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.flake8]
+max-line-length = 135
+exclude = ["__submodules__", ".git"]
+max-returns-amount = 10
+max-parameters-amount = 15
+
+# -- MyPy --
+[tool.mypy]
+ignore_missing_imports = true
+cache_dir = "/dev/null"
+
 # -- Vulture --
 [tool.vulture]
 exclude = [".vscode/", "__samples__/"]
@@ -36,10 +50,7 @@ disable = [
     "missing-class-docstring",
     "missing-function-docstring",
     "too-few-public-methods",
-    "logging-fstring-interpolation",
     "import-error",
-    "duplicate-code",
-    "no-member"
 ]
 
 [tool.pylint.format]
@@ -51,9 +62,3 @@ omit = ["tests/*"]
 
 [tool.coverage.report]
 exclude_lines = ["pragma: no cover", "def __repr__", "def __str__"]
-
-# -- Flake8 --
-[tool.flake8]
-max-line-length = 135
-exclude = ["__submodules__", ".git"]
-per-file-ignores = ["constants.py:N801", "client.py:CFQ002"]

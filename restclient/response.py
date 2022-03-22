@@ -1,5 +1,5 @@
 from json import dumps
-from abc import ABC, abstractmethod, abstractproperty
+from abc import ABC, abstractmethod
 from httpx import Response
 
 from .headers import RestHeaders
@@ -11,7 +11,8 @@ class BaseResponse(ABC):
     def json(self):
         raise NotImplementedError()
 
-    @abstractproperty
+    @abstractmethod
+    @property
     def text(self):
         raise NotImplementedError()
 
@@ -28,10 +29,7 @@ class RestResponse(BaseResponse):
         self._headers = RestHeaders(**dict(response.headers))
 
     def is_ok(self, codes):
-        if self.status_code in codes:
-            return True
-
-        return False
+        return self.status_code in codes
 
     @property
     def raw(self):
