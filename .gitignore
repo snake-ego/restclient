@@ -28,3 +28,4 @@ htmlcov/
 !.config/*.template.*
 configuration/
 configuration.json
+poetry.lock

@@ -69,7 +69,7 @@ class RestResponse(BaseResponse):
 
     @property
     def text(self):
-        return self.raw._text
+        return self.raw._text   # pylint: disable=protected-access
 
 
 class ErrorResponse(BaseResponse):

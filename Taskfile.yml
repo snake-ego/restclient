@@ -1,11 +1,11 @@
-# https://taskfile.dev
+# Version: 1.1.0
+# Docks: https://taskfile.dev
 
-version: "2"
+version: "3"
 
 silent: true
 
 vars:
-  VERSION: "1.0"
   FLAKE8_ENABLE: "{{ .FLAKE8_ENABLE | default true }}"
   MYPY_ENABLE: "{{ .MYPY_ENABLE | default true }}"
   PYLINT_ENABLE: "{{ .PYLINT_ENABLE | default true }}"
@@ -14,16 +14,13 @@ vars:
 tasks:
   default:
     deps:
-      - version
+      - info
 
-  version:
+  info:
     desc: Prints application info
     cmds:
-      - 'echo "Script version: {{ .VERSION }}"'
       - echo "---"
-      - 'echo "App: `/usr/bin/env python setup.py --name`"'
-      - 'echo "Version: `/usr/bin/env python setup.py --version`"'
-      - 'echo "Description: `/usr/bin/env python setup.py --description`"'
+      - poetry version
       - echo "---"
 
   lint:
@@ -92,10 +89,10 @@ tasks:
       - task: clean
   build:
     cmds:
-      - python setup.py sdist bdist_wheel
+      - poetry build
   push:
     cmds:
-      - twine upload --skip-existing dist/*
+      - poetry publish -r libs
   clean:
     cmds:
       - rm -rf dist *.egg-info build
