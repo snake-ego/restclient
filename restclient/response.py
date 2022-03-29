@@ -11,8 +11,8 @@ class BaseResponse(ABC):
     def json(self):
         raise NotImplementedError()
 
-    @abstractmethod
     @property
+    @abstractmethod
     def text(self):
         raise NotImplementedError()
 
