@@ -1,20 +1,9 @@
 from json import dumps
-from abc import ABC, abstractmethod
+
 from httpx import Response
 
+from .baseclasses import BaseResponse
 from .headers import RestHeaders
-
-
-class BaseResponse(ABC):
-
-    @abstractmethod
-    def json(self):
-        raise NotImplementedError()
-
-    @property
-    @abstractmethod
-    def text(self):
-        raise NotImplementedError()
 
 
 class RestResponse(BaseResponse):
@@ -71,6 +60,7 @@ class RestResponse(BaseResponse):
 
 
 class ErrorResponse(BaseResponse):
+
     def __init__(self, url, *_, **kwargs):
         self.url = url
         self.headers = RestHeaders(**kwargs.get('headers', {}))

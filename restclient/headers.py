@@ -5,7 +5,7 @@ from .structures import Header
 
 
 class RestHeaders:
-    __headers__: t.List[Header]
+    __headers__: list[Header]
 
     def __init__(self, *args, **kwargs):
         self.__headers__ = self.create(*args, **kwargs)
@@ -21,7 +21,7 @@ class RestHeaders:
         return result
 
     @staticmethod
-    def create(*args, **kwargs) -> t.List[Header]:
+    def create(*args, **kwargs) -> list[Header]:
         result = Header.parse(kwargs)
         for header in args:
             result.extend(Header.parse(header))
@@ -30,7 +30,7 @@ class RestHeaders:
     def has(self, name) -> bool:
         return any(self._find(name))
 
-    def keys(self) -> t.List[str]:
+    def keys(self) -> list[str]:
         return [h.name for h in self.__headers__]
 
     def get(self, name: str, default: str = None) -> t.Optional[str]:

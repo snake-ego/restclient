@@ -2,8 +2,7 @@ from __future__ import annotations
 import typing as t
 
 from .structures import Endpoint
-from .utils import trim
-from .constants import HTTP_PATTERN
+from .utils import trim, is_valid_url
 
 TEndpoint = t.Union[t.Dict[str, str], t.List[str], t.Tuple[str, str], str]
 
@@ -12,17 +11,20 @@ class RestURL:
     strict: bool
     address: str = ''
 
-    __endpoints__: t.List[Endpoint]
+    __endpoints__: list[Endpoint]
 
     def __init__(self, address: str = None, *, endpoints: TEndpoint = None, strict: bool = False):
         self.strict = strict
         self.__endpoints__ = Endpoint.parse(endpoints)
-        if self.is_valid_url(address):
+
+        if is_valid_url(address):
             self.address = trim(t.cast(str, address))
 
     def __call__(self, address: str, *uri_params: t.Union[str, int], **kwargs: t.Union[str, int]) -> str:
-        if not self.is_valid_url(address):
+
+        if not is_valid_url(address):
             address = self.url_for(address, *uri_params)
+
         return self.set_params(address, **kwargs)
 
     def set_params(self, url: str, **params: t.Union[str, int]) -> str:
@@ -39,8 +41,7 @@ class RestURL:
         return f'{key}={value}'
 
     def url_for(self, endpoint: str, *uri_params: t.Union[str, int]) -> str:
-        target = self.get_endpoint(endpoint).uri.format(*uri_params)
-        if self.is_valid_url(target):
+        if is_valid_url(target := self.get_endpoint(endpoint).uri.format(*uri_params)):
             return target
 
         query = [self.address, target]
@@ -48,12 +49,6 @@ class RestURL:
             query.append("")
 
         return "/".join(query)
-
-    @staticmethod
-    def is_valid_url(url: t.Optional[str]) -> bool:
-        if not isinstance(url, str):
-            return False
-        return bool(HTTP_PATTERN.match(url))
 
     def has_endpoint(self, name: str) -> bool:
         return any(self._find(name))

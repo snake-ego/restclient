@@ -1,7 +1,7 @@
 # -- Poetry --
 [tool.poetry]
 name = "APIRestClient"
-version = "2.4.4"
+version = "3.0.0"
 description = "Client for sync/async query HTTP REST API services"
 readme = "README.md"
 repository = "https://gitlab.itpc.ru/libs/python/restclient"
@@ -12,8 +12,8 @@ authors = [
 packages = [{ include = "restclient" }]
 
 [tool.poetry.dependencies]
-python = "^3.8"
-httpx = "^0.17.0"
+python = "^3.10"
+httpx = "^0.21.0"
 
 [[tool.poetry.source]]
 name = "wheels"
@@ -33,6 +33,7 @@ max-line-length = 135
 exclude = ["__submodules__", ".git"]
 max-returns-amount = 10
 max-parameters-amount = 15
+per-file-ignores = ["constants.py:N801"]
 
 # -- MyPy --
 [tool.mypy]

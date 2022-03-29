@@ -5,11 +5,12 @@ from json import dumps
 from types import MappingProxyType
 import httpx
 
-from .structures import RestErrors, Options
+from .structures import Options
 from .response import RestResponse, ErrorResponse
 from .headers import RestHeaders
 from .urls import RestURL
 from .exceptions import RestQueryError, TimeoutException, NetworkError
+from .constants import CUSTOM_ERROR
 
 
 class BaseRestClient:
@@ -46,10 +47,10 @@ class RestClient(BaseRestClient):
     def __call__(self,
                  method,
                  *address,
-                 params: t.Dict[str, t.Any] = None,
+                 params: dict[str, t.Any] = None,
                  json: t.Union[dict, list] = None,
                  data: t.Any = None,
-                 headers: t.Dict[str, str] = None,
+                 headers: dict[str, str] = None,
                  **opts):
         if len(address) == 0:
             raise ValueError("Address not set")
@@ -74,9 +75,9 @@ class RestClient(BaseRestClient):
         try:
             return RestResponse(httpx.request(method, url, headers=headers, data=data, **options.bypass))
         except NetworkError:
-            return RestResponse(ErrorResponse(url, **RestErrors.refused))
+            return RestResponse(ErrorResponse(url, **CUSTOM_ERROR.refused.value))
         except TimeoutException:
-            return RestResponse(ErrorResponse(url, **RestErrors.timeout))
+            return RestResponse(ErrorResponse(url, **CUSTOM_ERROR.timeout.value))
 
 
 class AsyncRestClient(BaseRestClient):
@@ -85,10 +86,10 @@ class AsyncRestClient(BaseRestClient):
     async def __call__(self,
                        method,
                        *address,
-                       params: t.Dict[str, t.Any] = None,
+                       params: dict[str, t.Any] = None,
                        json: t.Union[dict, list] = None,
                        data: t.Any = None,
-                       headers: t.Dict[str, str] = None,
+                       headers: dict[str, str] = None,
                        **opts):
         if len(address) == 0:
             raise ValueError("Address not set")
@@ -114,8 +115,8 @@ class AsyncRestClient(BaseRestClient):
         try:
             return RestResponse(await client.request(method, url, headers=headers, data=data, **options.bypass))
         except NetworkError:
-            return RestResponse(ErrorResponse(url, **RestErrors.refused))
+            return RestResponse(ErrorResponse(url, **CUSTOM_ERROR.refused.value))
         except TimeoutException:
-            return RestResponse(ErrorResponse(url, **RestErrors.timeout))
+            return RestResponse(ErrorResponse(url, **CUSTOM_ERROR.timeout.value))
         finally:
             await client.aclose()

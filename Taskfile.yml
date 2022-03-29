@@ -16,8 +16,8 @@ vars: &vars
   POETRY_USERNAME: "{{ .POETRY_HTTP_BASIC_LIBS_USERNAME }}"
   POETRY_PASSWORD: "{{ .POETRY_HTTP_BASIC_LIBS_PASSWORD }}"
 
-  COMPILE_IMAGE: registry.itpc.ru/docker/compile/python:5
-  LINT_IMAGE: registry.itpc.ru/docker/tools/python/linter:6
+  COMPILE_IMAGE: registry.itpc.ru/docker/compile/python:6
+  LINT_IMAGE: registry.itpc.ru/docker/tools/python/linter:8
 
 env:
   POETRY_VIRTUALENVS_CREATE: "false"

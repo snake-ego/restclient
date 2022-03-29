@@ -8,11 +8,6 @@ from types import MappingProxyType
 from .utils import trim
 
 
-class RestErrors:
-    refused = {'status_code': 1, 'text': "Connection Refused"}
-    timeout = {'status_code': 1, 'text': "Connection Timeout"}
-
-
 @dataclass
 class Endpoint:
     name: str
@@ -33,13 +28,13 @@ class Endpoint:
         return []
 
 
-@ dataclass
+@dataclass
 class Header:
     name: str
     display: str
     value: str
 
-    @ classmethod
+    @classmethod
     def create(cls, display: str, value: str) -> Header:
         return cls(
             name=display.lower(),
@@ -47,7 +42,7 @@ class Header:
             value=value
         )
 
-    @ classmethod
+    @classmethod
     def parse(cls, header: t.Union[t.Dict[str, str], t.List[str], t.Tuple[str, str]]) -> t.List[Header]:
         if isinstance(header, (dict, MappingProxyType)):
             return [Header.create(k, v) for k, v in header.items()]

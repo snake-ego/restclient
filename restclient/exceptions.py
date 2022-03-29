@@ -9,14 +9,16 @@ __all__ = [
 class RestQueryError(Exception):
     name: str
     code: int
-    message: str
 
-    def __init__(self, name, code, message):
-        super().__init__()
+    def __init__(self, name: str, code: int, *args):
+        super().__init__(*args)
 
         self.name = name
         self.code = code
-        self.message = message
 
     def __str__(self):
         return f'{self.name} Error: {self.message} ({self.code})'
+
+    @property
+    def message(self):
+        return "\n".join(self.args)
