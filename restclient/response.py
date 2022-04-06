@@ -37,7 +37,7 @@ class RestResponse(BaseResponse):
         if self.headers.get('content-type', '').find('application/json') != -1:
             return self.json()
 
-        return self._raw.text
+        return self.text
 
     @property
     def url(self):
@@ -56,7 +56,7 @@ class RestResponse(BaseResponse):
 
     @property
     def text(self):
-        return self.raw._text   # pylint: disable=protected-access
+        return self.raw.text
 
 
 class ErrorResponse(BaseResponse):
