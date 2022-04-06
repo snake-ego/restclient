@@ -26,7 +26,7 @@ class BaseRestClient:
             raise RestQueryError(
                 getattr(self, 'name', type(self).__name__),
                 response.status_code,
-                response.content
+                self.parse_response_error(response)
             )
 
         if options.full_response or int(response.headers.get('Content-Length', '0')) <= 1:
@@ -39,6 +39,19 @@ class BaseRestClient:
         if data is None and json is not None:
             data = dumps(json)
         return data
+
+    @staticmethod
+    def parse_response_error(response: RestResponse) -> str:
+        if isinstance((content := response.content), str):
+            return content
+
+        if isinstance(content, dict):
+            if content.get('message'):
+                return content['message']
+            if content.get('error'):
+                return content['error']
+
+        return response.text
 
 
 class RestClient(BaseRestClient):
