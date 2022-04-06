@@ -24,9 +24,9 @@ class BaseRestClient:
     def output(self, response: RestResponse, options: Options):
         if not response.is_ok(options.ok_codes):
             raise RestQueryError(
-                getattr(self, 'name', type(self).__name__),
-                response.status_code,
-                self.parse_response_error(response)
+                self.parse_response_error(response),
+                name=getattr(self, 'name', type(self).__name__),
+                code=response.status_code,
             )
 
         if options.full_response or int(response.headers.get('Content-Length', '0')) <= 1:
